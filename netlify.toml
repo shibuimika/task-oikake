@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.sheetjs.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.sheetjs.com;"
+
+[context.production.environment]
+  NODE_ENV = "production"

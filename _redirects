@@ -1,0 +1,4 @@
+# Netlify redirects file
+/ /index.html 200
+/task-oikake.html /index.html 200
+/*  /index.html 200

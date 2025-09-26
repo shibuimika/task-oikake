@@ -12,8 +12,12 @@
 
 ## 使い方
 
+### 🌐 オンライン版（Netlify）
+- **Webブラウザで直接アクセス**: Netlifyでホストされている場合
+
+### 💻 ローカル版  
 1. **ファイルを開く**
-   - ブラウザで`task-oikake.html`を開く
+   - ブラウザで`task-oikake.html`または`index.html`を開く
    
 2. **Excelファイルを読み込む**
    - ファイルをドラッグ&ドロップまたはクリックして選択
@@ -64,7 +68,13 @@
 - **HTML5 + JavaScript**: ブラウザ内で完結
 - **Tailwind CSS**: 事前ビルド済みCSSを埋め込み
 - **SheetJS**: Excel読み書きライブラリ（CDN使用）
+- **Netlify対応**: `index.html`とリダイレクト設定
 - **外部通信**: SheetJSライブラリのCDN読み込みのみ
+
+## デプロイメント
+- **Netlify**: `index.html`をエントリーポイントとして設定
+- **リダイレクト**: `_redirects`ファイルで全パスを`index.html`に転送
+- **CSP設定**: `netlify.toml`でSheetJS CDNを許可
 
 ## ブラウザ対応
 - Chrome, Firefox, Safari, Edge
