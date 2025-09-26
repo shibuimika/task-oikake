@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タスク追いかけダッシュボード</title>
+    <style>
+        /* Tailwind CSS - 事前ビルド済み（軽量版） */
+        .bg-blue-50 { background-color: rgb(239 246 255); }
+        .bg-amber-50 { background-color: rgb(255 251 235); }
+        .bg-rose-50 { background-color: rgb(255 241 242); }
+        .bg-white { background-color: rgb(255 255 255); }
+        .bg-gray-50 { background-color: rgb(249 250 251); }
+        .bg-gray-100 { background-color: rgb(243 244 246); }
+        .bg-yellow-100 { background-color: rgb(254 249 195); }
+        .bg-blue-100 { background-color: rgb(219 234 254); }
+        .bg-green-100 { background-color: rgb(220 252 231); }
+        .bg-gray-200 { background-color: rgb(229 231 235); }
+        
+        .text-blue-700 { color: rgb(29 78 216); }
+        .text-amber-700 { color: rgb(180 83 9); }
+        .text-rose-700 { color: rgb(190 18 60); }
+        .text-gray-700 { color: rgb(55 65 81); }
+        .text-gray-800 { color: rgb(31 41 55); }
+        .text-gray-600 { color: rgb(75 85 99); }
+        .text-yellow-800 { color: rgb(133 77 14); }
+        .text-blue-800 { color: rgb(30 64 175); }
+        .text-green-800 { color: rgb(22 101 52); }
+        
+        .border { border-width: 1px; }
+        .border-gray-200 { border-color: rgb(229 231 235); }
+        .border-gray-300 { border-color: rgb(209 213 219); }
+        .border-blue-200 { border-color: rgb(191 219 254); }
+        .border-amber-200 { border-color: rgb(253 230 138); }
+        .border-rose-200 { border-color: rgb(254 205 211); }
+        
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-full { border-radius: 9999px; }
+        .rounded { border-radius: 0.25rem; }
+        
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+        
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mr-2 { margin-right: 0.5rem; }
+        
+        .flex { display: flex; }
+        .flex-wrap { flex-wrap: wrap; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-2 { gap: 0.5rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        
+        .w-full { width: 100%; }
+        .w-1\/3 { width: 33.333333%; }
+        .min-h-screen { min-height: 100vh; }
+        .h-auto { height: auto; }
+        
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        
+        .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .hover\\:bg-gray-100:hover { background-color: rgb(243 244 246); }
+        .cursor-pointer { cursor: pointer; }
+        
+        .hidden { display: none; }
+        .block { display: block; }
+        
+        
+        /* カスタムスタイル */
+        .column-container {
+            min-height: 500px;
+        }
+        
+        .card {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .notion-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .file-drop-zone {
+            border: 2px dashed rgba(55, 53, 47, 0.2);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.2s ease;
+            background-color: rgba(55, 53, 47, 0.02);
+        }
+        
+        .file-drop-zone:hover,
+        .file-drop-zone.drag-over {
+            border-color: rgba(55, 53, 47, 0.4);
+            background-color: rgba(55, 53, 47, 0.04);
+        }
+        
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 9999px;
+        }
+
+        .badge-gray {
+            background-color: rgb(229 231 235);
+            color: rgb(55 65 81);
+        }
+
+        .badge-yellow {
+            background-color: rgb(254 249 195);
+            color: rgb(133 77 14);
+        }
+
+        .badge-blue {
+            background-color: rgb(219 234 254);
+            color: rgb(30 64 175);
+        }
+
+        .badge-green {
+            background-color: rgb(220 252 231);
+            color: rgb(22 101 52);
+        }
+
+        .badge-red {
+            background-color: rgb(254 226 226);
+            color: rgb(153 27 27);
+        }
+
+        /* Notion風メモ入力欄 */
+        .memo-input {
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .memo-input:focus {
+            outline: none;
+            border-color: #2383E2;
+            box-shadow: 0 0 0 1px rgba(35, 131, 226, 0.3);
+        }
+
+        .memo-input::placeholder {
+            color: rgba(55, 53, 47, 0.4);
+        }
+
+        
+        /* Notion風全体デザイン */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
+            background-color: #F7F6F3;
+            color: #37352F;
+        }
+        
+        .notion-card {
+            background-color: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(55, 53, 47, 0.09);
+        }
+        
+        .notion-button {
+            background-color: #FFFFFF;
+            border: 1px solid #DADADA;
+            color: #37352F;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .notion-button:hover {
+            background-color: #F0F0F0;
+        }
+        
+        .notion-button-primary {
+            background-color: rgb(219 234 254);
+            color: rgb(29 78 216);
+            border: 1px solid rgb(191 219 254);
+            border-radius: 0.5rem;
+        }
+        
+        .notion-button-primary:hover {
+            background-color: rgb(191 219 254);
+            color: rgb(29 78 216);
+        }
+    </style>
+</head>
+<body class="min-h-screen" style="background-color: #F7F6F3; padding: 32px 24px;">
+    <div class="px-4">
+        <div class="mb-6">
+            <h1 style="font-size: 28px; font-weight: 700; color: #37352F; margin-bottom: 24px; line-height: 1.2;">タスク追いかけダッシュボード</h1>
+            
+            <!-- ファイルアップロード -->
+            <div class="notion-card" style="padding: 24px; margin-bottom: 32px;">
+                <div class="file-drop-zone" id="dropZone">
+                    <input type="file" id="excelFile" accept=".xlsx,.xlsm" class="hidden">
+                    <div class="cursor-pointer" onclick="document.getElementById('excelFile').click()">
+                        <p style="color: #37352F; margin-bottom: 8px; font-size: 15px; font-weight: 500;">📁 Excelファイルをドロップするか、クリックして選択してください</p>
+                        <p style="color: #787774; font-size: 13px;">対応形式: .xlsx, .xlsm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3カラムボード -->
+        <div class="flex gap-6" id="dashboard">
+            <!-- あと3日列 -->
+            <div class="w-1/3">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <h2 class="text-lg font-semibold text-blue-700 text-center">
+                        あと3日 <span id="count-3" class="text-sm font-medium">(0)</span>
+                    </h2>
+                </div>
+                <div class="space-y-4 column-container" id="column-3">
+                </div>
+            </div>
+
+            <!-- あと2日列 -->
+            <div class="w-1/3">
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                    <h2 class="text-lg font-semibold text-amber-700 text-center">
+                        あと2日 <span id="count-2" class="text-sm font-medium">(0)</span>
+                    </h2>
+                </div>
+                <div class="space-y-4 column-container" id="column-2">
+                </div>
+            </div>
+
+            <!-- あと1日列 -->
+            <div class="w-1/3">
+                <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 mb-4">
+                    <h2 class="text-lg font-semibold text-rose-700 text-center">
+                        あと1日 <span id="count-1" class="text-sm font-medium">(0)</span>
+                    </h2>
+                </div>
+                <div class="space-y-4 column-container" id="column-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- 保存ボタン -->
+        <div class="mt-6 text-center">
+            <button id="saveBtn" class="hidden notion-button-primary" style="padding: 10px 20px; font-size: 14px; font-weight: 500;">
+                💾 Excelファイルを保存
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script>
+        // グローバル変数
+        let workbook = null;
+        let worksheetData = [];
+        let originalFilename = '';
+        let isXlsmFormat = false;
+        
+        // デバッグ用関数（コンソールのみ）
+        function debugLog(message, data) {
+            console.log(`[DEBUG] ${message}`, data || '');
+        }
+
+        // 初期化処理
+        function initializeApp() {
+            debugLog('App initialization started');
+
+            // DOM要素の存在確認
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('excelFile');
+            
+            if (!dropZone) {
+                debugLog('ERROR: dropZone element not found');
+                return false;
+            }
+            
+            if (!fileInput) {
+                debugLog('ERROR: fileInput element not found');
+                return false;
+            }
+            
+            // SheetJSの確認
+            if (typeof XLSX === 'undefined') {
+                debugLog('ERROR: XLSX library not loaded');
+                alert('SheetJSライブラリが読み込まれていません。インターネット接続を確認してください。');
+                return false;
+            }
+            
+            debugLog('SheetJS version: ' + XLSX.version);
+            
+            // イベントリスナーの設定
+            setupEventListeners(dropZone, fileInput);
+            
+            debugLog('App initialization completed');
+            return true;
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners(dropZone, fileInput) {
+            debugLog('Setting up event listeners');
+            
+            // ドラッグ&ドロップイベント
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => highlight(dropZone), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => unhighlight(dropZone), false);
+            });
+
+            dropZone.addEventListener('drop', handleDrop, false);
+            fileInput.addEventListener('change', handleFileSelect, false);
+            
+            // 保存ボタン
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', handleSave);
+            }
+        }
+
+        // ユーティリティ関数
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(element) {
+            element.classList.add('drag-over');
+        }
+
+        function unhighlight(element) {
+            element.classList.remove('drag-over');
+        }
+
+        // ファイル処理関数
+        function handleDrop(e) {
+            debugLog('File dropped');
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            debugLog('File selected via input');
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            debugLog(`Processing ${files.length} files`);
+            
+            if (files.length === 0) {
+                debugLog('No files selected');
+                return;
+            }
+            
+            const file = files[0];
+            debugLog('File info', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+            
+            originalFilename = file.name;
+            isXlsmFormat = file.name.toLowerCase().endsWith('.xlsm');
+            
+            readExcelFile(file);
+        }
+
+        function readExcelFile(file) {
+            debugLog('Starting to read Excel file');
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                debugLog('FileReader onload triggered');
+                
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    debugLog(`File data loaded: ${data.length} bytes`);
+                    
+                    workbook = XLSX.read(data, { 
+                        type: 'array',
+                        bookVBA: isXlsmFormat
+                    });
+                    
+                    debugLog('Workbook loaded successfully', workbook.SheetNames);
+                    
+                    processWorkbook(workbook);
+                    
+                } catch (error) {
+                    debugLog('ERROR reading Excel file: ' + error.message);
+                    alert('Excelファイルの読み込みでエラーが発生しました: ' + error.message);
+                }
+            };
+            
+            reader.onerror = function(error) {
+                debugLog('FileReader error', error);
+                alert('ファイル読み込みエラーが発生しました');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processWorkbook(wb) {
+            debugLog('Processing workbook');
+            
+            if (!wb.SheetNames || wb.SheetNames.length === 0) {
+                debugLog('ERROR: No sheets found in workbook');
+                alert('Excelファイルにシートが見つかりません');
+                return;
+            }
+            
+            const sheetName = wb.SheetNames[0];
+            const worksheet = wb.Sheets[sheetName];
+            
+            if (!worksheet) {
+                debugLog('ERROR: Cannot access worksheet');
+                alert('ワークシートにアクセスできません');
+                return;
+            }
+            
+            debugLog('Processing sheet: ' + sheetName);
+            
+            // データ範囲の確認
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+            debugLog('Sheet range', range);
+            
+            const targetData = [];
+
+            for (let row = 8; row <= range.e.r; row++) { // 9行目以降（0ベースなので8から）
+                const cells = [];
+                
+                for (let col = 1; col <= 8; col++) { // B列～I列（1～8）
+                    const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                    const cellValue = worksheet[cellAddress] ? worksheet[cellAddress].v : '';
+                    cells.push(cellValue);
+                }
+
+                // データがある行のみ処理
+                if (cells.some(cell => cell !== '' && cell != null)) {
+                    const rowData = {
+                        name: cells[0] || '',           // B列: 氏名
+                        jobSeekerId: cells[1] || '',    // C列: 求職者No
+                        startDate: cells[2] || '',      // D列: 追いかけスタート日
+                        endDate: cells[3] || '',        // E列: 追いかけ期間の最終日
+                        remaining: cells[4] || 0,       // F列: 残件数
+                        handMatch: cells[5] || 0,       // G列: 手マッチ
+                        application: cells[6] || 0,     // H列: 応募
+                        memo: cells[7] || '',           // I列: メモ
+                        originalRowIndex: row
+                    };
+                    
+                    targetData.push(rowData);
+                }
+            }
+            
+            debugLog(`Extracted ${targetData.length} data rows`);
+            worksheetData = targetData;
+            
+            if (targetData.length === 0) {
+                debugLog('WARNING: No data found in specified range');
+                alert('指定された範囲（B列～I列、9行目以降）にデータが見つかりません');
+                return;
+            }
+            
+            processAndDisplayData(targetData);
+            
+            // 保存ボタンを表示
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.classList.remove('hidden');
+            }
+        }
+
+        function processAndDisplayData(data) {
+            debugLog('Processing and displaying data');
+            
+            // 今日の日付（時刻を00:00:00にリセット）
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const columns = {
+                3: [], // あと3日
+                2: [], // あと2日  
+                1: []  // あと1日
+            };
+
+            data.forEach((item, index) => {
+                if (!item.endDate) {
+                    debugLog(`Item ${index}: No endDate, skipping`);
+                    return;
+                }
+
+                const endDate = parseExcelDate(item.endDate);
+                if (!endDate) {
+                    debugLog(`Item ${index}: Could not parse endDate: ${item.endDate}`);
+                    return;
+                }
+
+                // E列の日付も時刻を00:00:00にリセット
+                const endDateOnly = new Date(endDate);
+                endDateOnly.setHours(0, 0, 0, 0);
+
+                // 残日数計算：E列 - 今日の日付
+                const diffTime = endDateOnly.getTime() - today.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                debugLog(`Item ${index} (${item.name}): Today=${today.toDateString()}, EndDate=${endDateOnly.toDateString()}, Days=${diffDays}`);
+
+                // 残日数による分類（元の条件のまま）
+                if (isNaN(diffDays)) {
+                    debugLog(`Item ${index}: Invalid date calculation, skipping`);
+                    return;
+                }
+                
+                if (diffDays === 2) {
+                    columns[3].push(item);
+                } else if (diffDays === 1) {
+                    columns[2].push(item);
+                } else if (diffDays === 0) {
+                    columns[1].push(item);
+                } else {
+                    debugLog(`Item ${index}: ${diffDays} days remaining - not in target range (2,1,0)`);
+                }
+            });
+
+            // 各列をソート
+            Object.keys(columns).forEach(key => {
+                columns[key].sort((a, b) => {
+                    // 1. 残件数の少ない順
+                    const remainingDiff = (a.remaining || 0) - (b.remaining || 0);
+                    if (remainingDiff !== 0) return remainingDiff;
+
+                    // 2. 表示日昇順
+                    const dateA = parseExcelDate(a.startDate) || new Date(0);
+                    const dateB = parseExcelDate(b.startDate) || new Date(0);
+                    const dateDiff = dateA - dateB;
+                    if (dateDiff !== 0) return dateDiff;
+
+                    // 3. 氏名昇順
+                    return (a.name || '').localeCompare(b.name || '');
+                });
+            });
+
+            debugLog('Column distribution', {
+                column3: columns[3].length,
+                column2: columns[2].length,
+                column1: columns[1].length
+            });
+
+            displayCards(columns);
+        }
+
+        function parseExcelDate(dateValue) {
+            if (!dateValue) return null;
+            
+            // デバッグ用
+            debugLog(`Parsing date: ${dateValue} (type: ${typeof dateValue})`);
+            
+            if (typeof dateValue === 'number') {
+                // Excelシリアル値を日付に変換
+                if (dateValue > 0 && dateValue < 100000) { // 妥当な範囲チェック
+                    const excelEpoch = new Date(1899, 11, 30);
+                    const result = new Date(excelEpoch.getTime() + dateValue * 24 * 60 * 60 * 1000);
+                    debugLog(`Parsed Excel serial ${dateValue} to ${result}`);
+                    return result;
+                }
+            } else if (typeof dateValue === 'string') {
+                // 文字列の日付パース
+                if (dateValue.trim() === '') return null;
+                
+                // 日本の日付形式を試行
+                const patterns = [
+                    /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/,  // YYYY/MM/DD, YYYY-MM-DD
+                    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/   // MM/DD/YYYY, DD/MM/YYYY
+                ];
+                
+                for (let pattern of patterns) {
+                    const match = dateValue.match(pattern);
+                    if (match) {
+                        let year, month, day;
+                        if (pattern === patterns[0]) {
+                            year = parseInt(match[1]);
+                            month = parseInt(match[2]) - 1; // 0ベース
+                            day = parseInt(match[3]);
+                        } else {
+                            // MM/DD/YYYY として解釈
+                            year = parseInt(match[3]);
+                            month = parseInt(match[1]) - 1;
+                            day = parseInt(match[2]);
+                        }
+                        
+                        const result = new Date(year, month, day);
+                        if (!isNaN(result.getTime())) {
+                            debugLog(`Parsed string "${dateValue}" to ${result}`);
+                            return result;
+                        }
+                    }
+                }
+                
+                // フォールバック: 標準Date constructor
+                const result = new Date(dateValue);
+                if (!isNaN(result.getTime())) {
+                    debugLog(`Parsed string "${dateValue}" with Date constructor to ${result}`);
+                    return result;
+                }
+            } else if (dateValue instanceof Date) {
+                if (!isNaN(dateValue.getTime())) {
+                    debugLog(`Date object: ${dateValue}`);
+                    return dateValue;
+                }
+            }
+            
+            debugLog(`Failed to parse date: ${dateValue}`);
+            return null;
+        }
+
+        function formatDate(date) {
+            if (!date) return '';
+            return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function displayCards(columns) {
+            debugLog('Displaying cards');
+            
+            Object.keys(columns).forEach(key => {
+                const columnElement = document.getElementById(`column-${key}`);
+                const countElement = document.getElementById(`count-${key}`);
+                
+                if (!columnElement || !countElement) {
+                    debugLog(`ERROR: Column elements not found for key ${key}`);
+                    return;
+                }
+                
+                const cards = columns[key];
+
+                // カウント更新
+                countElement.textContent = `(${cards.length})`;
+
+                // カード生成
+                columnElement.innerHTML = cards.map(card => createCardHTML(card)).join('');
+            });
+            
+            debugLog('Cards displayed successfully');
+        }
+
+        function createCardHTML(data) {
+            const remaining = data.remaining || 0;
+            const handMatch = data.handMatch || 0;
+            const application = data.application || 0;
+
+            // 残数の色分け：0=赤、1〜3=黄色、4以上=青
+            let remainingBadge;
+            if (remaining === 0) {
+                remainingBadge = 'badge-red';
+            } else if (remaining >= 1 && remaining <= 3) {
+                remainingBadge = 'badge-yellow';
+            } else {
+                remainingBadge = 'badge-blue';
+            }
+
+            // 手マッチの色分け：10未満=赤、10〜19=黄色、20以上=青
+            let handMatchBadge;
+            if (handMatch < 10) {
+                handMatchBadge = 'badge-red';
+            } else if (handMatch >= 10 && handMatch <= 19) {
+                handMatchBadge = 'badge-yellow';
+            } else {
+                handMatchBadge = 'badge-blue';
+            }
+
+            // 応募の色分け：残数+応募数<5=赤、残数+応募数>=5=青
+            const totalCount = remaining + application;
+            const applicationBadge = totalCount < 5 ? 'badge-red' : 'badge-blue';
+
+            return `
+                <div class="notion-card" style="padding: 16px; margin-bottom: 12px; transition: all 0.2s ease;">
+                    <!-- ヘッダー：求職者No + 氏名（同じ行・同じサイズ） -->
+                    <div class="mb-3 flex items-center gap-2">
+                        <span style="font-size: 15px; font-weight: 600; color: #37352F;">${escapeHtml(data.jobSeekerId || '')}</span>
+                        <span style="font-size: 15px; font-weight: 600; color: #37352F;">${escapeHtml(data.name || '')}</span>
+                    </div>
+                    
+                    <!-- バッジ -->
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span class="badge ${remainingBadge}">残 ${remaining}</span>
+                        <span class="badge ${handMatchBadge}">手マッチ ${handMatch}</span>
+                        <span class="badge ${applicationBadge}">応募 ${application}</span>
+                    </div>
+                    
+                    <!-- メモ欄 -->
+                    <div style="padding: 0 4px;">
+                        <textarea 
+                            class="memo-input rounded" 
+                            rows="2" 
+                            placeholder="メモを入力..."
+                            data-row-index="${data.originalRowIndex}"
+                            onchange="updateMemo(this, ${data.originalRowIndex})"
+                            style="width: 100%; font-size: 13px; padding: 8px; resize: none; line-height: 1.5; border: 1px solid rgba(55, 53, 47, 0.16); background-color: #FFFFFF; box-sizing: border-box;"
+                        >${escapeHtml(data.memo || '')}</textarea>
+                    </div>
+                </div>
+            `;
+        }
+
+        // メモ更新関数
+        function updateMemo(textarea, rowIndex) {
+            const newMemo = textarea.value;
+            debugLog(`Updating memo for row ${rowIndex}: ${newMemo}`);
+            
+            // worksheetDataを更新
+            const dataItem = worksheetData.find(item => item.originalRowIndex === rowIndex);
+            if (dataItem) {
+                dataItem.memo = newMemo;
+                debugLog('Memo updated in worksheetData');
+            }
+            
+            // ワークブックのセルも更新
+            if (workbook && workbook.Sheets) {
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // I列（メモ列）のセルアドレス
+                const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: 8 });
+                
+                if (newMemo.trim() === '') {
+                    // メモが空の場合はセルを削除
+                    delete worksheet[cellAddress];
+                } else {
+                    // メモがある場合はセルを更新
+                    worksheet[cellAddress] = { v: newMemo, t: 's' };
+                }
+                
+                debugLog(`Updated Excel cell ${cellAddress} with memo: ${newMemo}`);
+            }
+        }
+
+        // HTMLエスケープ関数
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // 保存機能（フォルダ指定対応）
+        async function handleSave() {
+            debugLog('Save button clicked');
+            
+            if (!workbook) {
+                alert('保存するデータがありません。');
+                return;
+            }
+
+            try {
+                const fileType = isXlsmFormat ? 'xlsm' : 'xlsx';
+                const defaultFilename = originalFilename || `tasks.${fileType}`;
+
+                // File System Access API対応ブラウザの場合
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: defaultFilename,
+                            types: [{
+                                description: 'Excel files',
+                                accept: {
+                                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+                                    'application/vnd.ms-excel.sheet.macroEnabled.12': ['.xlsm']
+                                }
+                            }]
+                        });
+
+                        // ファイルに書き込み
+                        const writable = await fileHandle.createWritable();
+                        const buffer = XLSX.write(workbook, {
+                            bookType: fileType,
+                            bookVBA: isXlsmFormat,
+                            type: 'buffer'
+                        });
+                        await writable.write(buffer);
+                        await writable.close();
+
+                        alert('ファイルが正常に保存されました！');
+                        debugLog('File saved successfully with folder picker');
+                        
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            debugLog('ERROR with folder picker: ' + error.message);
+                            // フォールバック：標準ダウンロード
+                            fallbackSave(fileType, defaultFilename);
+                        }
+                    }
+                } else {
+                    // File System Access API非対応の場合
+                    fallbackSave(fileType, defaultFilename);
+                }
+                
+            } catch (error) {
+                debugLog('ERROR saving file: ' + error.message);
+                alert('保存に失敗しました: ' + error.message);
+            }
+        }
+
+        // フォールバック保存機能
+        function fallbackSave(fileType, filename) {
+            try {
+                XLSX.writeFile(workbook, filename, {
+                    bookType: fileType,
+                    bookVBA: isXlsmFormat
+                });
+                alert('ファイルがダウンロードフォルダに保存されました。');
+                debugLog('File saved with fallback method');
+            } catch (error) {
+                debugLog('ERROR with fallback save: ' + error.message);
+                alert('保存に失敗しました: ' + error.message);
+            }
+        }
+
+        // DOMContentLoadedイベントで初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('DOM Content Loaded');
+            
+            // SheetJSの読み込みを待つ
+            if (typeof XLSX === 'undefined') {
+                debugLog('XLSX not yet loaded, waiting...');
+                setTimeout(() => {
+                    initializeApp();
+                }, 1000);
+            } else {
+                initializeApp();
+            }
+        });
+
+        // フォールバック: ページ読み込み完了後
+        window.addEventListener('load', function() {
+            debugLog('Window loaded');
+            if (typeof initializeApp === 'function' && typeof XLSX !== 'undefined') {
+                // DOM要素が存在するか再確認
+                if (document.getElementById('dropZone') && document.getElementById('excelFile')) {
+                    debugLog('Elements found, reinitializing if needed');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
